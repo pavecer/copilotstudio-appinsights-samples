@@ -1,8 +1,8 @@
-@description('Azure region for scheduled query rules')
-param location string = 'westeurope'
+@description('Azure region for scheduled query rules. Defaults to the resource group location.')
+param location string = resourceGroup().location
 
 @description('Application Insights resource ID in scope')
-param appInsightsResourceId string = '/subscriptions/ff6e6a8b-29f6-4666-b4b0-ff238c72bb23/resourceGroups/pvecopstud/providers/microsoft.insights/components/appinpvemcs'
+param appInsightsResourceId string
 
 @description('Action group resource IDs to notify. Keep empty for dry run.')
 param actionGroupResourceIds array = []

@@ -1,38 +1,80 @@
-# Copilot Studio App Insights Monitoring Samples (Local Review)
+# Copilot Studio App Insights Monitoring Samples
 
-This folder contains local-only samples for monitoring Copilot Studio agents in Teams channel traffic.
-No deployment was executed.
+KQL queries, an Azure Workbook, and alert rules for monitoring Copilot Studio agents in Teams channel traffic via Application Insights.
+
+## Prerequisites
+
+- A Copilot Studio agent connected to the **Teams** or **M365 Copilot** channel
+- An **Application Insights** resource receiving telemetry from that agent
+- Azure CLI (`az`) installed and logged in (`az login`)
 
 ## Contents
 
-- `kql/01-latency-summary-24h.kql`
-- `kql/02-slowest-responses-24h.kql`
-- `kql/03-error-signals-7d.kql`
-- `kql/04-topic-scorecard-7d.kql`
-- `kql/05-live-traffic-2h.kql`
-- `workbook/copilotstudio-agent-monitoring.workbook.json` (draft workbook definition)
-- `alerts/alerts.bicep` (2 scheduled query alert rules, disabled by default)
+| Path | Description |
+|---|---|
+| `kql/01-latency-summary-24h.kql` | P50/P95/avg latency over 24 h |
+| `kql/02-slowest-responses-24h.kql` | Top 10 slowest conversations |
+| `kql/03-error-signals-7d.kql` | Failures and exceptions over 7 days |
+| `kql/04-topic-scorecard-7d.kql` | Per-topic start/end/failure counts |
+| `kql/05-live-traffic-2h.kql` | Near-real-time traffic in 5-minute bins |
+| `workbook/copilotstudio-agent-monitoring.workbook.json` | Azure Workbook with all five panels |
+| `alerts/alerts.bicep` | Two scheduled query alert rules (disabled by default) |
 
-## Alert Rules Included
+## Quick Start
 
-1. `copilotstudio-latency-p95`
-- Triggers when p95 response latency > 3000 ms over 15 minutes.
+### 1. Run KQL queries
 
-2. `copilotstudio-error-signals`
-- Triggers when combined failures/exceptions > 0 over 15 minutes.
+Open any `.kql` file in the `kql/` folder and run it in the **Logs** blade of your Application Insights resource in the Azure portal. No changes needed — the queries are self-contained.
 
-Both alerts are configured with `enabled = false` by default.
+### 2. Import the Workbook
 
-## Optional deployment command (do not run until approved)
+1. Open your Application Insights resource in the [Azure portal](https://portal.azure.com).
+2. Navigate to **Workbooks** → **New** → **Advanced Editor** (the `</>` icon).
+3. Paste the contents of `workbook/copilotstudio-agent-monitoring.workbook.json`.
+4. Click **Apply**, then save the workbook.
+
+> The workbook uses your Application Insights resource as the data source automatically when opened from within that resource's Workbooks blade.
+
+### 3. Deploy Alert Rules
+
+The Bicep template deploys two scheduled query alert rules. By default both are **disabled** (`enabled=false`) so you can review them before they fire.
+
+**Get your Application Insights resource ID:**
+
+```powershell
+az monitor app-insights component show `
+  --app <your-appinsights-name> `
+  --resource-group <your-resource-group> `
+  --query id -o tsv
+```
+
+**Deploy the alerts (dry run, disabled):**
 
 ```powershell
 az deployment group create `
-  --subscription ff6e6a8b-29f6-4666-b4b0-ff238c72bb23 `
-  --resource-group pvecopstud `
+  --subscription <your-subscription-id> `
+  --resource-group <your-resource-group> `
   --template-file alerts/alerts.bicep `
-  --parameters enabled=false actionGroupResourceIds='[]'
+  --parameters appInsightsResourceId='<resource-id-from-above>' enabled=false actionGroupResourceIds='[]'
 ```
 
-## Workbook import note
+**Enable alerts and wire up an action group:**
 
-The workbook JSON is a local draft you can review and adjust first. After approval, we can convert/import it into Azure Workbooks.
+```powershell
+az deployment group create `
+  --subscription <your-subscription-id> `
+  --resource-group <your-resource-group> `
+  --template-file alerts/alerts.bicep `
+  --parameters appInsightsResourceId='<resource-id-from-above>' `
+               enabled=true `
+               actionGroupResourceIds='["/subscriptions/<sub>/resourceGroups/<rg>/providers/microsoft.insights/actionGroups/<ag-name>"]'
+```
+
+## Alert Rules Included
+
+| Rule | Condition | Severity |
+|---|---|---|
+| `copilotstudio-latency-p95` | P95 response latency > 3000 ms over 15 min | 2 (Warning) |
+| `copilotstudio-error-signals` | Combined failures/exceptions > 0 over 15 min | 1 (Error) |
+
+Both rules evaluate every 5 minutes over a 15-minute window.

@@ -4,7 +4,7 @@
     {
       "type": 1,
       "content": {
-        "json": "# Copilot Studio Agent Monitoring\n\nLocal draft workbook for review.\nData source: Application Insights component appinpvemcs.\nFocus: latency, errors, topic quality, and near-real-time traffic."
+        "json": "# Copilot Studio Agent Monitoring\n\nLocal draft workbook for review.\nData source: your Application Insights component (update the resource IDs in this workbook before importing).\nFocus: latency, errors, topic quality, and near-real-time traffic."
       }
     },
     {
@@ -17,7 +17,7 @@
         "queryType": 0,
         "resourceType": "microsoft.insights/components",
         "crossComponentResources": [
-          "/subscriptions/ff6e6a8b-29f6-4666-b4b0-ff238c72bb23/resourceGroups/pvecopstud/providers/microsoft.insights/components/appinpvemcs"
+          "/subscriptions/{your-subscription-id}/resourceGroups/{your-resource-group}/providers/microsoft.insights/components/{your-appinsights-name}"
         ],
         "timeContext": {
           "durationMs": 86400000
@@ -35,7 +35,7 @@
         "queryType": 0,
         "resourceType": "microsoft.insights/components",
         "crossComponentResources": [
-          "/subscriptions/ff6e6a8b-29f6-4666-b4b0-ff238c72bb23/resourceGroups/pvecopstud/providers/microsoft.insights/components/appinpvemcs"
+          "/subscriptions/{your-subscription-id}/resourceGroups/{your-resource-group}/providers/microsoft.insights/components/{your-appinsights-name}"
         ],
         "timeContext": {
           "durationMs": 86400000
@@ -53,7 +53,7 @@
         "queryType": 0,
         "resourceType": "microsoft.insights/components",
         "crossComponentResources": [
-          "/subscriptions/ff6e6a8b-29f6-4666-b4b0-ff238c72bb23/resourceGroups/pvecopstud/providers/microsoft.insights/components/appinpvemcs"
+          "/subscriptions/{your-subscription-id}/resourceGroups/{your-resource-group}/providers/microsoft.insights/components/{your-appinsights-name}"
         ],
         "timeContext": {
           "durationMs": 604800000
@@ -71,7 +71,7 @@
         "queryType": 0,
         "resourceType": "microsoft.insights/components",
         "crossComponentResources": [
-          "/subscriptions/ff6e6a8b-29f6-4666-b4b0-ff238c72bb23/resourceGroups/pvecopstud/providers/microsoft.insights/components/appinpvemcs"
+          "/subscriptions/{your-subscription-id}/resourceGroups/{your-resource-group}/providers/microsoft.insights/components/{your-appinsights-name}"
         ],
         "timeContext": {
           "durationMs": 604800000
@@ -89,7 +89,7 @@
         "queryType": 0,
         "resourceType": "microsoft.insights/components",
         "crossComponentResources": [
-          "/subscriptions/ff6e6a8b-29f6-4666-b4b0-ff238c72bb23/resourceGroups/pvecopstud/providers/microsoft.insights/components/appinpvemcs"
+          "/subscriptions/{your-subscription-id}/resourceGroups/{your-resource-group}/providers/microsoft.insights/components/{your-appinsights-name}"
         ],
         "timeContext": {
           "durationMs": 7200000
@@ -100,6 +100,6 @@
   ],
   "isLocked": false,
   "fallbackResourceIds": [
-    "/subscriptions/ff6e6a8b-29f6-4666-b4b0-ff238c72bb23/resourceGroups/pvecopstud/providers/microsoft.insights/components/appinpvemcs"
+    "/subscriptions/{your-subscription-id}/resourceGroups/{your-resource-group}/providers/microsoft.insights/components/{your-appinsights-name}"
   ]
 }
