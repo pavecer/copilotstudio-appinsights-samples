@@ -1,0 +1,7 @@
+customEvents
+| where timestamp > ago(7d)
+| where name in ('TopicStart','TopicEnd','GenerativeAnswers')
+| extend topic=coalesce(tostring(customDimensions['TopicName']), tostring(customDimensions['Topic']))
+| extend result=tolower(tostring(customDimensions['Result']))
+| summarize starts=countif(name=='TopicStart'), ends=countif(name=='TopicEnd'), genAnswers=countif(name=='GenerativeAnswers'), failures=countif(result in ('failed','error','timeout','cancelled')) by topic
+| order by starts desc

@@ -1,0 +1,6 @@
+customEvents
+| where timestamp > ago(2h)
+| extend channelId=tostring(customDimensions['channelId'])
+| where channelId in ('m365copilot','msteams','teams')
+| summarize incoming=countif(name=='BotMessageReceived'), outgoing=countif(name=='BotMessageSend'), genAnswers=countif(name=='GenerativeAnswers') by bin(timestamp, 5m), channelId
+| order by timestamp asc

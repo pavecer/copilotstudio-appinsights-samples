@@ -1,0 +1,105 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# Copilot Studio Agent Monitoring\n\nLocal draft workbook for review.\nData source: Application Insights component appinpvemcs.\nFocus: latency, errors, topic quality, and near-real-time traffic."
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents | where timestamp > ago(24h) | extend channelId=tostring(customDimensions['channelId']) | where channelId in ('m365copilot','msteams','teams') | where name in ('BotMessageReceived','BotMessageSend') | summarize userTs=minif(timestamp, name=='BotMessageReceived'), botTs=minif(timestamp, name=='BotMessageSend') by operation_Id, session_Id | where isnotempty(userTs) and isnotempty(botTs) | extend latencyMs = datetime_diff('millisecond', botTs, userTs) | summarize conversations=count(), p50=percentile(latencyMs, 50), p95=percentile(latencyMs, 95), avg=avg(latencyMs), max=max(latencyMs)",
+        "size": 0,
+        "title": "Latency Summary (24h)",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "crossComponentResources": [
+          "/subscriptions/ff6e6a8b-29f6-4666-b4b0-ff238c72bb23/resourceGroups/pvecopstud/providers/microsoft.insights/components/appinpvemcs"
+        ],
+        "timeContext": {
+          "durationMs": 86400000
+        },
+        "visualization": "table"
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents | where timestamp > ago(24h) | extend channelId=tostring(customDimensions['channelId']) | where channelId in ('m365copilot','msteams','teams') | where name in ('BotMessageReceived','BotMessageSend') | summarize userTs=minif(timestamp, name=='BotMessageReceived'), botTs=minif(timestamp, name=='BotMessageSend') by operation_Id, session_Id | where isnotempty(userTs) and isnotempty(botTs) | extend latencyMs = datetime_diff('millisecond', botTs, userTs) | top 10 by latencyMs desc | project userTs, botTs, latencyMs, operation_Id, session_Id",
+        "size": 0,
+        "title": "Slowest Responses (24h)",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "crossComponentResources": [
+          "/subscriptions/ff6e6a8b-29f6-4666-b4b0-ff238c72bb23/resourceGroups/pvecopstud/providers/microsoft.insights/components/appinpvemcs"
+        ],
+        "timeContext": {
+          "durationMs": 86400000
+        },
+        "visualization": "table"
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let eventFailures = toscalar(customEvents | where timestamp > ago(7d) | extend result=tolower(tostring(customDimensions['Result'])) | where result in ('failed','error','timeout','cancelled') or name has_any ('Error','Exception','Failure') | summarize count()); let exceptionCount = toscalar(exceptions | where timestamp > ago(7d) | summarize count()); print eventFailures=coalesce(eventFailures,0), exceptionCount=coalesce(exceptionCount,0), totalErrorSignals=coalesce(eventFailures,0)+coalesce(exceptionCount,0)",
+        "size": 0,
+        "title": "Error Signals (7d)",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "crossComponentResources": [
+          "/subscriptions/ff6e6a8b-29f6-4666-b4b0-ff238c72bb23/resourceGroups/pvecopstud/providers/microsoft.insights/components/appinpvemcs"
+        ],
+        "timeContext": {
+          "durationMs": 604800000
+        },
+        "visualization": "table"
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents | where timestamp > ago(7d) | where name in ('TopicStart','TopicEnd','GenerativeAnswers') | extend topic=coalesce(tostring(customDimensions['TopicName']), tostring(customDimensions['Topic'])) | extend result=tolower(tostring(customDimensions['Result'])) | summarize starts=countif(name=='TopicStart'), ends=countif(name=='TopicEnd'), genAnswers=countif(name=='GenerativeAnswers'), failures=countif(result in ('failed','error','timeout','cancelled')) by topic | order by starts desc",
+        "size": 0,
+        "title": "Topic Scorecard (7d)",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "crossComponentResources": [
+          "/subscriptions/ff6e6a8b-29f6-4666-b4b0-ff238c72bb23/resourceGroups/pvecopstud/providers/microsoft.insights/components/appinpvemcs"
+        ],
+        "timeContext": {
+          "durationMs": 604800000
+        },
+        "visualization": "table"
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customEvents | where timestamp > ago(2h) | extend channelId=tostring(customDimensions['channelId']) | where channelId in ('m365copilot','msteams','teams') | summarize incoming=countif(name=='BotMessageReceived'), outgoing=countif(name=='BotMessageSend'), genAnswers=countif(name=='GenerativeAnswers') by bin(timestamp, 5m), channelId | order by timestamp asc",
+        "size": 0,
+        "title": "Live Traffic (2h, 5m bins)",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "crossComponentResources": [
+          "/subscriptions/ff6e6a8b-29f6-4666-b4b0-ff238c72bb23/resourceGroups/pvecopstud/providers/microsoft.insights/components/appinpvemcs"
+        ],
+        "timeContext": {
+          "durationMs": 7200000
+        },
+        "visualization": "timechart"
+      }
+    }
+  ],
+  "isLocked": false,
+  "fallbackResourceIds": [
+    "/subscriptions/ff6e6a8b-29f6-4666-b4b0-ff238c72bb23/resourceGroups/pvecopstud/providers/microsoft.insights/components/appinpvemcs"
+  ]
+}

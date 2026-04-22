@@ -1,0 +1,15 @@
+let eventFailures =
+toscalar(
+	customEvents
+	| where timestamp > ago(7d)
+	| extend result=tolower(tostring(customDimensions['Result']))
+	| where result in ('failed','error','timeout','cancelled') or name has_any ('Error','Exception','Failure')
+	| summarize count()
+);
+let exceptionCount =
+toscalar(
+	exceptions
+	| where timestamp > ago(7d)
+	| summarize count()
+);
+print eventFailures=coalesce(eventFailures,0), exceptionCount=coalesce(exceptionCount,0), totalErrorSignals=coalesce(eventFailures,0)+coalesce(exceptionCount,0)

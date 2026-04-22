@@ -1,0 +1,9 @@
+customEvents
+| where timestamp > ago(24h)
+| extend channelId=tostring(customDimensions['channelId'])
+| where channelId in ('m365copilot','msteams','teams')
+| where name in ('BotMessageReceived','BotMessageSend')
+| summarize userTs=minif(timestamp, name=='BotMessageReceived'), botTs=minif(timestamp, name=='BotMessageSend') by operation_Id, session_Id
+| where isnotempty(userTs) and isnotempty(botTs)
+| extend latencyMs = datetime_diff('millisecond', botTs, userTs)
+| summarize conversations=count(), p50=percentile(latencyMs, 50), p95=percentile(latencyMs, 95), avg=avg(latencyMs), max=max(latencyMs)
